@@ -90,6 +90,7 @@ from lib.mEoS.Butene_1 import Butene_1
 from lib.mEoS.iButene import iButene
 from lib.mEoS.Cis_2_butene import Cis_2_butene
 from lib.mEoS.Trans_2_butene import Trans_2_butene
+from lib.mEoS.Hexene_1 import Hexene_1
 from lib.mEoS.Propyne import Propyne
 from lib.mEoS.C1Oleate import C1Oleate
 from lib.mEoS.C1Linolenate import C1Linolenate
@@ -151,6 +152,7 @@ from lib.mEoS.R1234zeZ import R1234zeZ
 from lib.mEoS.R1243zf import R1243zf
 from lib.mEoS.R1216 import R1216
 from lib.mEoS.R1233zd import R1233zd
+from lib.mEoS.R1336mzzE import R1336mzzE
 from lib.mEoS.R1336mzzZ import R1336mzzZ
 from lib.mEoS.RE143a import RE143a
 from lib.mEoS.RE245cb2 import RE245cb2
@@ -194,16 +196,16 @@ Naphthenes = [Cyclopropane, Cyclopentane, Cyclohexane, C1Cyclohexane,
               C3Cyclohexane]
 Alkenes = [Benzene, Toluene, oXylene, mXylene, pXylene, EthylBenzene,
            Ethylene, Propylene, Butene_1, iButene, Cis_2_butene,
-           Trans_2_butene, Propyne, C1Oleate, C1Linolenate, C1Linoleate,
-           C1Palmitate, C1Stearate]
+           Trans_2_butene, Hexene_1, Propyne, C1Oleate, C1Linolenate,
+           C1Linoleate, C1Palmitate, C1Stearate]
 Heteroatom = [Methanol, Ethanol, Acetone, EthyOxide, PropylenGlycol, DME, DEE,
               DMC, NF3, SF6, HCl]
 CFCs = [R13I1, R11, R12, R13, R14, R21, R22, R23, R32, R40, R41, R113, R114,
         R115, R116, R123, R124, R125, R134a, R141b, R142b, R143a, R150, R152a,
         R161, R218, R227ea, R236ea, R236fa, R245ca, R245fa, R365mfc, RC318,
-        R1123, R1234yf, R1234zeE, R1234zeZ, R1243zf, R1216, R1233zd, R1336mzzZ,
-        RE143a, RE245cb2, RE245fa2, RE347mcc, Novec649, VinylCl, C4F10, C5F12,
-        C6F14]
+        R1123, R1234yf, R1234zeE, R1234zeZ, R1243zf, R1216, R1233zd, R1336mzzE,
+        R1336mzzZ, RE143a, RE245cb2, RE245fa2, RE347mcc, Novec649, VinylCl,
+        C4F10, C5F12, C6F14]
 Siloxanes = [D4, D5, D6, MDM, MD2M, MD3M, MD4M, MM]
 PseudoCompounds = [Air, R404a, R407c, R410a, R507a]
 Others = [LJ]

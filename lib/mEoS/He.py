@@ -90,8 +90,7 @@ class He(MEoS):
         "gamma3": [1.1475, 1.7036, 1.6795, 0.9512, 4.475, 2.7284, 1.7167,
                    1.5237, 0.7649],
         "epsilon3": [0.912, 0.79, 0.90567, 5.1136, 3.6022, 0.6488, 4.2753,
-                     2.744, 0.8736],
-        "nr4": []}
+                     2.744, 0.8736]}
 
     mccarty = {
         "__type__": "Helmholtz",
@@ -207,15 +206,14 @@ class He(MEoS):
     _melting = {
         "eq": 1,
         "__doi__": {
-              "autor": "Datchi, F., Loubeyre, P., LeToullec, R.",
-              "title": "Extended and accuracy determination of the melting "
-                       "curves of argon, helium, ice (H2O), and hydrogen (H2)",
-              "ref": "Physical Review B, 61(10) (2000) 6535-6546",
-              "doi": "10.1103/PhysRevB.61.6535"},
+            "autor": "Datchi, F., Loubeyre, P., LeToullec, R.",
+            "title": "Extended and accuracy determination of the melting "
+                     "curves of argon, helium, ice (H2O), and hydrogen (H2)",
+            "ref": "Physical Review B, 61(10) (2000) 6535-6546",
+            "doi": "10.1103/PhysRevB.61.6535"},
 
         "Tmin": Tt, "Tmax": 1500,
         "Tref": 1, "Pref": 1e9,
-
         "a1": [1.6067e-3], "exp1": [1.565]}
 
     _vapor_Pressure = {
@@ -255,8 +253,7 @@ class He(MEoS):
 
         def mue(T, rho):
             # Section 3.5, for T > 300 evaluate at T = 300
-            if T > 300:
-                T = 300
+            T = min(T, 300)
 
             # Density g/cm³
             rho_gcc = rho*1e-3
@@ -380,7 +377,7 @@ class He(MEoS):
             lc = 3.4685233e-17*3.726229668*lc
 
         # print(lo, lr, lc)
-        return unidades.ThermalConductivity(lo+lr+lc)
+        return unidades.ThermalConductivity((lo+lr+lc).real)
 
     thermo1 = {"__name__": "McCarty (1981)",
                "__doi__": {
@@ -414,10 +411,13 @@ class He(MEoS):
             """Correction for dilute gas"""
             x = log(T)
 
-            B = exp(4.7470660612 - 5.3641468153*x + 3.4639703698*x**2 -  # Eq 9
-                    1.0702455443*x**3 + 0.1571349306*x**4 - 0.00892140047*x**5)
+            # Eq 9
+            B = exp(4.7470660612 - 5.3641468153*x + 3.4639703698*x**2
+                    - 1.0702455443*x**3 + 0.1571349306*x**4
+                    - 0.00892140047*x**5)
+            # Eq 10
             C = 2.2109006708 + 187.74174808/T - 1281.0947055/T**2 + \
-                3645.2393216/T**3 - 3986.6937948/T**4                   # Eq 10
+                3645.2393216/T**3 - 3986.6937948/T**4
             ly = exp(B*rho + C*rho**2)                                  # Eq 8
 
             return ly
@@ -445,9 +445,10 @@ class He(MEoS):
 
 
 class Test(TestCase):
+    """Testing"""
 
     def test_Hands(self):
-        # Table 4
+        """Table 4"""
         # Several point don't work, McCarty mEoS give erroreous phase
         self.assertEqual(round(He(P=1e5, T=800, eq="mccarty").k, 4), 0.3085)
         self.assertEqual(round(He(P=1e5, T=300, eq="mccarty").k, 4), 0.1560)

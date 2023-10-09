@@ -18,6 +18,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.'''
 
 
+from unittest import TestCase
+
 from lib import unidades
 from lib.meos import MEoS
 from lib.mEoS import C3
@@ -92,31 +94,86 @@ class RC318(MEoS):
         "n": [-0.24491e2, 0.53255e2, -0.38863e2, -0.24938e2, -0.90092e2],
         "t": [0.61, 0.77, 0.92, 3.3, 7.5]}
 
-    trnECS = {"__name__": "Huber (2003)",
+    trnECS = {"__name__": "Huber (2018)",
 
               "__doi__": {
-                  "autor": "Huber, M.L., Laesecke, A., Perkins, R.A.",
-                  "title": "Model for the Viscosity and Thermal Conductivity "
-                           "of Refrigerants, Including a New Correlation for "
-                           "the Viscosity of R134a",
-                  "ref": "Ind. Eng. Chem. Res., 42(13) (2003) 3163-3178",
-                  "doi": "10.1021/ie0300880"},
+                  "autor": "Huber, M.L.",
+                  "title": "Models for Viscosity, Thermal Conductivity, and "
+                           "Surface Tension of Selected Pure Fluids as "
+                           "Implemented in REFPROP v10.0",
+                  "ref": "NISTIR 8209",
+                  "doi": "10.6028/NIST.IR.8209"},
 
               "eq": "ecs",
-
               "ref": C3,
               "visco": "visco1",
-              "thermo": "thermo0",
 
-              "ek": 299.76, "sigma": 0.5947, "omega": 5,
+              "ek": 308.41, "sigma": 0.5549, "omega": 6,
+              "n_chapman": 26.692e-3, "Fc": 0.9,
 
-              "psi": [1.21141, -3.37573e-2], "psi_d": [0, 1],
-              "fint": [1.35697e-3, -1.11635e-7], "fint_t": [0, 1],
-              "chi": [1.5249, -0.147564], "chi_d": [0, 1],
+              "psi": [1.72536, -0.454947, 0.085819], "psi_d": [0, 1, 2],
+              "fint": [1.24931e-3, 6.94039e-8], "fint_t": [0, 1],
+              "chi": [1.43669, -0.113691], "chi_d": [0, 1],
 
               "critical": 3,
-              "gnu": 0.63, "gamma": 1.239, "R0": 1.03, "Xio": 0.194e-9,
-              "gam0": 0.0496, "qd": 3.56085e-10, "Tcref": 1.5*Tc}
+              "gnu": 0.63, "gamma": 1.239, "R0": 1.02, "Xio": 0.222e-9,
+              "gam0": 0.062, "qd": 0.677e-9, "Tcref": 1.5*Tc}
 
-    _viscosity = trnECS,
-    _thermal = trnECS,
+    _viscosity = (trnECS, )
+
+    thermo0 = {"__name__": "Krauss (1989)",
+               "__doi__": {
+                   "autor": "Krauss, R., Stephan, K.",
+                   "title": "Thermal Conductivity of Refrigerants in a Wide "
+                            "Range of Temperature and Pressure",
+                   "ref": "J. Phys. Chem. Ref. Data 18(1) (1989) 43-76",
+                   "doi": "10.1063/1.555842"},
+
+               "eq": 1,
+
+               # Typo in paper
+               # Temperature reducing value is critical value
+               # Thermal conductivity reducing value using the exact value from
+               # dimensional analysis with molecular weight in kg/mol
+               # R**(5/6)*Pc**(2/3)/Tc**(1/6)/(M/1000)**0.5/Na**(1/3)
+               "Toref": 388.46, "koref": 1.13314e-3,
+               "no": [-7.7081392, 24.281282],
+               "to": [0, 1],
+
+               "rhoref_res": 3.1*200.031, "kref_res": 1.13314e-3,
+               "nr": [5.403515, -1.4936, 3.0426812],
+               "tr": [0, 0, 0],
+               "dr": [1, 2, 3]}
+
+    _thermal = (trnECS, thermo0)
+
+
+class Test(TestCase):
+    """Testing"""
+    def test_Huber(self):
+        """Table 7, pag 266"""
+        st = RC318(T=349.5, rhom=6.379)
+        # self.assertEqual(round(st.mu.muPas, 4), 188.5507)
+        # self.assertEqual(round(st.k.mWmK, 4), 50.2769)
+        self.assertEqual(round(st.mu.muPas, 4), 188.5478)
+        self.assertEqual(round(st.k.mWmK, 4), 50.2780)
+
+    def test_krauss(self):
+        """Selected point from Table C7 and C8, pag 74"""
+        # The values differ because the paper use and old EoS don't
+        # implemented in pychemqt
+        kw = {"thermal": 1}
+        self.assertEqual(round(RC318(T=240, P=1e5, **kw).k.mWmK, 2), 84.33)
+        self.assertEqual(round(RC318(T=300, P=5e6, **kw).k.mWmK, 2), 68.32)
+        self.assertEqual(round(RC318(T=260, P=6e7, **kw).k.mWmK, 2), 96.83)
+
+        # Saturation point, Table C4
+        st = RC318(T=250, x=0.5, **kw)
+        self.assertEqual(round(st.P.bar, 5), 0.46901)
+        self.assertEqual(round(st.Gas.k.mWmK, 2), 9.02)
+        self.assertEqual(round(st.Liquido.k.mWmK, 2), 81.06)
+
+        st = RC318(T=360, x=0.5, **kw)
+        self.assertEqual(round(st.P.bar, 3), 15.601)
+        self.assertEqual(round(st.Gas.k.mWmK, 2), 18.27)
+        self.assertEqual(round(st.Liquido.k.mWmK, 2), 45.83)
